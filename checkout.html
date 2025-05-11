@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <!-- CHECKOUT SECTION STARTS -->
+    <section id="checkout" class="section">
+        <h2>Checkout</h2>
+        <div id="cart" class="cart"></div>
+        <h3>Data Diri Pembeli</h3>
+        <form id="checkout-form" onsubmit="handleCheckout(event)">
+            <input id="nama" type="text" placeholder="Nama Lengkap" required />
+            <input id="alamat" type="text" placeholder="Alamat" required />
+            <input id="telepon" type="tel" placeholder="Nomor HP" required />
+            <button class="btn" type="submit">Bayar</button>
+        </form>
+
+        <div id="receipt"></div>
+        <button id="download-btn" class="btn" onclick="downloadPDF()">Download Struk PDF</button>
+        <button id="home-btn" class="btn" onclick="goToHome()">Kembali ke Menu Home</button>
+    </section>
+    <!-- CHECKOUT SECTION ENDS -->
+
+    <script>
+        // Ambil parameter URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const product = urlParams.get('product');
+        const price = urlParams.get('price');
+
+        // Tampilkan data produk di halaman checkout
+        if (product && price) {
+            const cart = document.getElementById('cart');
+            cart.innerHTML = `
+                <p><strong>Nama Produk:</strong> ${product}</p>
+                <p><strong>Harga:</strong> Rp ${parseInt(price).toLocaleString('id-ID')}</p>
+            `;
+        }
+
+        // Fungsi untuk menangani checkout
+        function handleCheckout(event) {
+            event.preventDefault(); // Mencegah reload halaman
+
+            // Ambil data dari input
+            const nama = document.getElementById('nama').value;
+            const alamat = document.getElementById('alamat').value;
+            const telepon = document.getElementById('telepon').value;
+
+            // Validasi input
+            if (!nama || !alamat || !telepon) {
+                alert("Harap isi semua data pembeli!");
+                return;
+            }
+
+            // Tampilkan data di receipt
+            const receipt = `
+                <h3>Struk Pembelian</h3>
+                <p><strong>Nama:</strong> ${nama}</p>
+                <p><strong>Alamat:</strong> ${alamat}</p>
+                <p><strong>Telepon:</strong> ${telepon}</p>
+                <h4>Produk yang dibeli:</h4>
+                <p><strong>Nama Produk:</strong> ${product}</p>
+                <p><strong>Harga:</strong> Rp ${parseInt(price).toLocaleString('id-ID')}</p>
+            `;
+            document.getElementById('receipt').innerHTML = receipt;
+
+            // Kosongkan form setelah checkout
+            document.getElementById('checkout-form').reset();
+        }
+
+        // Fungsi untuk mengunduh struk sebagai PDF
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf; // Ambil jsPDF dari library
+            const doc = new jsPDF();
+
+            // Ambil elemen struk
+            const receipt = document.getElementById('receipt');
+
+            if (!receipt.innerHTML.trim()) {
+                alert("Struk kosong! Silakan lakukan checkout terlebih dahulu.");
+                return;
+            }
+
+            // Tambahkan konten struk ke PDF
+            doc.html(receipt, {
+                callback: function (doc) {
+                    // Simpan file PDF
+                    doc.save("struk-pembelian.pdf");
+                },
+                x: 10,
+                y: 10
+            });
+        }
+
+        // Fungsi untuk kembali ke menu home
+        function goToHome() {
+            window.location.href = "index.html"; // Ganti dengan path file home Anda
+        }
+    </script>
+</body>
+</html>
