@@ -59,27 +59,26 @@ function handleCheckout(event) {
 
 // Fungsi untuk mengunduh struk sebagai PDF
 function downloadPDF() {
-    const { jsPDF } = window.jspdf; // Ambil jsPDF dari library
+    const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
-    // Ambil elemen struk
-    const receipt = document.getElementById('receipt');
-
-    if (!receipt.innerHTML.trim()) {
+    const receiptEl = document.getElementById('receipt');
+    if (!receiptEl.innerText.trim()) {
         alert("Struk kosong! Silakan lakukan checkout terlebih dahulu.");
         return;
     }
 
-    // Tambahkan konten struk ke PDF
-    doc.html(receipt, {
-        callback: function (doc) {
-            // Simpan file PDF
-            doc.save("struk-pembelian.pdf");
-        },
-        x: 10,
-        y: 10
+    const lines = receiptEl.innerText.split('\n');
+    let y = 10;
+
+    lines.forEach(line => {
+        doc.text(line, 10, y);
+        y += 10;
     });
+
+    doc.save("struk-pembelian.pdf");
 }
+
 
 // Fungsi untuk memuat keranjang dari localStorage
 function muatKeranjang() {
